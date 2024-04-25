@@ -1,148 +1,206 @@
- # Kubernetes
+# Kubernetes Commands Related to Nodes
 
-Kubernetes (also known as K8s) is an open-source container orchestration platform. It is used for automating deployment, scaling, and management of containerized applications. Kubernetes provides a flexible and scalable architecture for managing containers, which makes it an ideal choice for modern applications that are built using micro-services and containerization.
+Kubernetes provides several commands to manage and retrieve information about nodes in your cluster using the `kubectl` command-line tool. Here are some useful commands:
 
-Kubernetes provides a unified API for managing and deploying containerized applications across multiple nodes or clusters. It enables developers to focus on building their applications without worrying about the underlying infrastructure. Kubernetes provides features such as load balancing, scaling, self-healing, and rolling updates, which ensure that the applications are always available and running smoothly.
+## Get Information About Nodes
 
-Kubernetes can run on-premises, in the cloud, or in a hybrid environment. It works with a variety of container runtimes such as Docker, containerd, and CRI-O, and can manage containers across multiple hosts and clouds. Kubernetes also has a large and active community of contributors, which helps in continuous development and improvement of the platform.
+- **List all nodes**: To list all nodes in the cluster:
 
-# K8 Architecture
+    ```plaintext
+    kubectl get nodes
+    ```
 
-![kubernetes architecture](./Images/k8-arch.jpg)
+- **Describe a specific node**: To describe a specific node and get detailed information about it:
 
-# Kubernetes Architectural Components
+    ```plaintext
+    kubectl describe node <node-name>
+    ```
 
-## 1. Control Plane
+## Managing Nodes
 
-The control plane is the central management layer responsible for maintaining the desired state of the cluster and orchestrating the various components. It includes several components:
+- **Cordon a node**: To cordon a node, which prevents new pods from being scheduled onto it:
 
-- **API Server**: The API server is the central point of contact for managing the Kubernetes cluster. It exposes the Kubernetes API, which clients and other control plane components use to interact with the cluster. It validates and processes API requests, updating the cluster state as needed.
+    ```plaintext
+    kubectl cordon <node-name>
+    ```
 
-- **Scheduler**: The scheduler is responsible for placing pods (containers) on nodes within the cluster. It evaluates the current state of the cluster, including resource availability and constraints, to determine the optimal placement for each pod.
+- **Uncordon a node**: To uncordon a node, allowing new pods to be scheduled onto it:
 
-- **Controller Manager**: The controller manager runs various controllers that watch the state of the cluster and take action to maintain the desired state. For example, it handles replication controllers, endpoints, and namespace controllers.
+    ```plaintext
+    kubectl uncordon <node-name>
+    ```
 
-- **Etcd**: Etcd is a distributed key-value store used by Kubernetes to persist the state of the cluster. It stores configuration data, metadata, and other information that the control plane components use to manage the cluster.
+- **Drain a node**: To safely drain a node, which evicts all pods and ensures the node is ready for maintenance:
 
-## 2. Nodes
+    ```plaintext
+    kubectl drain <node-name> --ignore-daemonsets --delete-local-data
+    ```
 
-Nodes are the worker machines that run the actual workloads. Each node includes the following components:
+    - The `--ignore-daemonsets` flag allows DaemonSet pods to remain running.
+    - The `--delete-local-data` flag deletes any local data on the node.
 
-- **Kubelet**: The kubelet is an agent that runs on each node and ensures the desired state of the node's assigned pods. It communicates with the API server to get pod definitions and manages the lifecycle of the pods on the node.
+## Patching Nodes
 
-- **Kube-proxy**: Kube-proxy is responsible for network routing and load balancing. It manages network rules to ensure that communication within the cluster and between external clients and services is properly handled.
+- **Patch a node**: To patch a node's configuration:
 
-- **Container Runtime**: The container runtime is the software responsible for running containers. Kubernetes supports several container runtimes, such as Docker, containerd, and CRI-O.
+    ```plaintext
+    kubectl patch node <node-name> --patch '{"spec": {"taints": [{"effect": "NoSchedule", "key": "example-key", "value": "example-value"}]}}'
+    ```
 
-# Kubernetes Manifests
+    - This example patches the node with a taint to prevent scheduling new pods on the node.
 
-## What are Kubernetes Manifests?
+## Logs and Events
 
-Kubernetes manifests are configuration files that define the desired state of resources in a Kubernetes cluster. They specify various properties such as the number of replicas, container images, networking settings, and more. Manifests are written in YAML or JSON format.
+- **Get logs from a node**: Logs are collected from the containers running on nodes. You can view the logs of a specific pod:
 
-# Pods and Deployments in Kubernetes
+    ```plaintext
+    kubectl logs <pod-name> -n <namespace>
+    ```
+
+- **Get events related to a node**: To view events related to a specific node:
+
+    ```plaintext
+    kubectl get events --field-selector involvedObject.kind=Node,involvedObject.name=<node-name>
+    ```
+
+## Monitoring Node Status
+
+- **Monitor node status**: To monitor the status of nodes, use the watch flag:
+
+    ```plaintext
+    kubectl get nodes --watch
+    ```
+
+This command provides a real-time view of node status changes.
+
+These commands help you manage and monitor the nodes in your Kubernetes cluster effectively. Let me know if there's anything else I can assist you with.
+
+
+# Kubernetes Commands Related to Pods, Services, and Deployments
+
+Kubernetes provides various commands using the `kubectl` command-line tool to manage and retrieve information about Pods, Services, and Deployments in your cluster.
 
 ## Pods
 
-A pod is the smallest and most basic unit of deployment in Kubernetes. It represents a single instance of a running process in a cluster. Pods can contain one or more containers that share resources such as network interfaces and storage volumes.
+### Get Information About Pods
 
-### Key Characteristics of Pods
+- **List all pods**: To list all pods in the cluster or in a specific namespace:
 
-- **Multiple Containers**: While most pods contain a single container, they can have multiple containers. Containers within a pod share the same network namespace and storage volumes, allowing them to communicate using `localhost`.
+    ```plaintext
+    kubectl get pods
+    kubectl get pods -n <namespace>
+    ```
 
-- **Lifecycle**: Pods have a lifecycle that starts with scheduling onto a node and ends when they are terminated. Kubernetes manages pod lifecycles, including health checks and restarts in case of failures.
+- **Describe a specific pod**: To describe a specific pod and get detailed information about it:
 
-- **Ephemeral**: Pods are ephemeral, meaning they can be created and destroyed as needed. They are not intended to be long-lived or persistent.
+    ```plaintext
+    kubectl describe pod <pod-name>
+    ```
 
-- **Configuration**: Pods can be configured with specific resource requirements, such as CPU and memory limits, and can specify environmental variables and other settings for the contained containers.
+- **View pod logs**: To view logs from a specific pod:
 
-- **Network**: Each pod gets its own IP address in the cluster, allowing direct communication with other pods.
+    ```plaintext
+    kubectl logs <pod-name>
+    ```
 
-### Uses of Pods
+- **View live logs**: To stream live logs from a pod:
 
-- **Workload Deployment**: Pods are used to deploy and manage individual workloads, such as running applications or services.
+    ```plaintext
+    kubectl logs -f <pod-name>
+    ```
 
-- **Stateful Workloads**: Pods can be used for stateful workloads such as databases or caches when managed with StatefulSets.
+### Managing Pods
+
+- **Create a new pod**: To create a new pod from a YAML manifest file:
+
+    ```plaintext
+    kubectl apply -f path/to/pod.yaml
+    ```
+
+- **Delete a pod**: To delete a specific pod:
+
+    ```plaintext
+    kubectl delete pod <pod-name>
+    ```
+
+## Services
+
+### Get Information About Services
+
+- **List all services**: To list all services in the cluster or in a specific namespace:
+
+    ```plaintext
+    kubectl get services
+    kubectl get services -n <namespace>
+    ```
+
+- **Describe a specific service**: To describe a specific service and get detailed information about it:
+
+    ```plaintext
+    kubectl describe service <service-name>
+    ```
+
+### Managing Services
+
+- **Create a new service**: To create a new service from a YAML manifest file:
+
+    ```plaintext
+    kubectl apply -f path/to/service.yaml
+    ```
+
+- **Delete a service**: To delete a specific service:
+
+    ```plaintext
+    kubectl delete service <service-name>
+    ```
 
 ## Deployments
 
-A Deployment is a higher-level Kubernetes resource that manages and automates the deployment and lifecycle of pods in a cluster. Deployments provide declarative updates for pods and help manage rolling updates, rollbacks, and other deployment strategies.
+### Get Information About Deployments
 
-### Key Characteristics of Deployments
+- **List all deployments**: To list all deployments in the cluster or in a specific namespace:
 
-- **Declarative**: Deployments define the desired state of the application, including the number of replicas, pod templates, and update strategies.
+    ```plaintext
+    kubectl get deployments
+    kubectl get deployments -n <namespace>
+    ```
 
-- **Pod Templates**: Deployments use a pod template, which specifies the configuration of the pods to be managed.
+- **Describe a specific deployment**: To describe a specific deployment and get detailed information about it:
 
-- **Scaling**: Deployments allow you to scale the number of replicas up or down based on demand. This can be done manually or automatically using an autoscaler.
+    ```plaintext
+    kubectl describe deployment <deployment-name>
+    ```
 
-- **Rolling Updates**: Deployments support rolling updates, which gradually replace old pods with new ones to avoid downtime. You can specify the maximum number of pods to update at once and other update parameters.
+### Managing Deployments
 
-- **Rollbacks**: If an update goes wrong, you can roll back to a previous revision to restore the last working state.
+- **Create a new deployment**: To create a new deployment from a YAML manifest file:
 
-- **Health Checks**: Deployments can specify readiness and liveness probes to monitor the health of the pods.
+    ```plaintext
+    kubectl apply -f path/to/deployment.yaml
+    ```
 
-### Benefits of Deployments
+- **Scale a deployment**: To scale the number of replicas in a deployment:
 
-- **Automated Management**: Deployments automate the process of deploying and managing pods, including handling updates and scaling.
+    ```plaintext
+    kubectl scale deployment <deployment-name> --replicas=<number>
+    ```
 
-- **Version Control**: Deployments keep track of different versions of your application and allow you to roll back to previous versions.
+- **Rolling update**: To perform a rolling update of a deployment:
 
-- **Load Balancing**: Deployments work well with Kubernetes Services to ensure that the pods are load balanced.
+    ```plaintext
+    kubectl rollout status deployment/<deployment-name>
+    ```
 
-- **Consistency**: Deployments provide consistency in deploying applications across multiple clusters and environments.
+- **Roll back a deployment**: To roll back a deployment to a previous revision:
 
-In summary, pods and deployments are core Kubernetes concepts for managing and deploying containerized applications in a cluster. Pods provide a way to run individual workloads, while deployments automate and manage the lifecycle of pods, offering features such as rolling updates and scaling.
+    ```plaintext
+    kubectl rollout undo deployment/<deployment-name>
+    ```
 
-# Kubernetes Service and Its Types
+- **Delete a deployment**: To delete a specific deployment:
 
-## Introduction to Kubernetes Service
+    ```plaintext
+    kubectl delete deployment <deployment-name>
+    ```
 
-In Kubernetes, a Service is an abstraction that defines a logical set of pods and a policy for accessing them. Services provide stable network endpoints for a set of pods, making it easier for other services or external clients to communicate with them. Services can use selectors to match pods and route traffic to them, even as pods are added or removed.
-
-## Types of Kubernetes Service
-
-Kubernetes supports several types of services based on the networking needs of your application:
-
-### 1. ClusterIP
-
-- **Description**: ClusterIP is the default type of Kubernetes service. It exposes the service on a cluster-internal IP address, which means it is only accessible from within the cluster.
-
-- **Use Cases**: ClusterIP is useful for internal communication between services and applications within the cluster.
-
-### 2. NodePort
-
-- **Description**: NodePort is a service type that exposes the service on the same port on each node in the cluster. It also creates a ClusterIP service to enable internal communication.
-
-- **Use Cases**: NodePort is useful when you want to expose the service on a specific port on all cluster nodes, allowing access from outside the cluster using the node's IP address and the NodePort.
-
-### 3. LoadBalancer
-
-- **Description**: LoadBalancer is a service type that exposes the service externally using a cloud provider's load balancer. It creates a ClusterIP service and a NodePort service as part of its setup.
-
-- **Use Cases**: LoadBalancer is ideal for exposing services to the outside world while benefiting from the cloud provider's load balancing features.
-
-### 4. ExternalName
-
-- **Description**: ExternalName is a service type that maps the service to an external DNS name (CNAME record). It doesn't create ClusterIP, NodePort, or LoadBalancer services.
-
-- **Use Cases**: ExternalName is useful for providing access to external resources using an easy-to-remember DNS name within the cluster.
-
-## Service Selectors and Endpoints
-
-- **Selectors**: Services use selectors to match and route traffic to specific pods based on labels.
-
-- **Endpoints**: Kubernetes automatically creates an `Endpoints` resource for each service, which keeps track of the IP addresses of the pods that match the service's selector.
-
-## Additional Service Features
-
-- **Session Affinity**: Services can be configured to support session affinity (also known as sticky sessions), which ensures that requests from the same client are consistently routed to the same pod.
-
-- **DNS**: Services are automatically assigned DNS names based on their names and namespaces, allowing other services to communicate with them using human-readable names.
-
-- **Annotations**: Services can be annotated with metadata to customize their behavior, such as specifying load balancer settings for a LoadBalancer service.
-
-## Conclusion
-
-Kubernetes services provide a stable and scalable way to manage and expose your application components within a cluster and to the outside world. Choosing the appropriate service type for your application can ensure efficient and reliable communication between your services and clients.
-
+These commands help you manage and monitor the Pods, Services, and Deployments in your Kubernetes cluster effectively. Let me know if you need further assistance.

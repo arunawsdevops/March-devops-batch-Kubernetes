@@ -7,3 +7,13 @@ spec:
   hard:
     pods: "6"
     services: "2"
+
+
+## Commands
+## kubectl get resourcequota
+## kubectl get resourcequota -n <namespace>
+## kubectl describe resourcequota <resourcequota-name>
+## kubectl describe resourcequota <resourcequota-name> -n <namespace>
+## kubectl edit resourcequota <resourcequota-name>
+## kubectl edit resourcequota <resourcequota-name> -n <namespace>
+

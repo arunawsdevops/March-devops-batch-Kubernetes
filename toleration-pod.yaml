@@ -13,8 +13,5 @@ spec:
       value: "dev"
       effect: "NoSchedule"
 
-## To Taint node:
-
-    ```plaintext
-    kubectl taint nodes node_name env=dev:NoSchedule
-    ```
+## To Taint node: kubectl taint nodes node_name env=dev:NoSchedule
+ 

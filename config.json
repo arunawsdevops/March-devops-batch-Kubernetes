@@ -1,0 +1,10 @@
+{
+    "auths": {
+      "https://index.docker.io/v1/": {
+        "username": "arunawsdevops",
+        "password": "Onedown@1234",
+        "email": "arunawscloud53@gmail.com"
+      }
+    }
+  }
+  

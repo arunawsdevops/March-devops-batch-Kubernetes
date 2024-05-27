@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resource-quota
+  namespace: devops
+spec:
+  hard:
+    pods: "6"
+    services: "2"

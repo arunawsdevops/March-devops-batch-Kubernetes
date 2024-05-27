@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-pod
+spec:
+  containers:
+  - name: private-image
+    image: arunawsdevops/devops:latest
+  imagePullSecrets:
+  - name: docker-secret

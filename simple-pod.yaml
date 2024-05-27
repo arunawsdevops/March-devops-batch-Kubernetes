@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-demo
+spec:
+  serviceAccountName: arun-svc
+  containers:
+    - name: first-container
+      image: arunawsdevops/blue-app:latest

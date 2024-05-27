@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: resources-demo-2
+spec:
+  containers:
+  - name: resources-demo-2
+    image: polinux/stress
+    command: ["stress"]
+    args: ["--cpu", "1", "--vm", "1", "--vm-bytes", "1G", "--vm-hang", "1"]
+    resources:
+      requests:
+        cpu: "2000m"  # Match CPU request to CPU limit
+        memory: "4000Mi"  # Match memory request to memory limit
+      limits:
+        cpu: "2000m"  # Match CPU limit to CPU request
+        memory: "4000Mi"  # Match memory limit to memory request

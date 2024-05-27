@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-demo
+data: 
+   port: "27017"
+   db_url: mongodb://username:password@mongodb.example.com:27017/mydatabase
+   db_name: mydatabase

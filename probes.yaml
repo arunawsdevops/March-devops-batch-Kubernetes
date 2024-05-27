@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: first-pod
+spec:
+  containers:
+    - name: first-container
+      image: nginx:latest
+  
+  livenessProbe: 
+      initialDelaySeconds: 15
+      periodSeconds: 10
+  
+  readinessProbe: 
+      initialDelaySeconds: 15
+      periodSeconds: 10
+
+  startupProbe: 
+      failureThreshold: 30
+      periodSeconds: 10
+     
+      env:
+       - name: myusername
+         valueFrom: 
+            secretKeyRef:
+              name: secret-demo
+              key: username
+       - name: mypassword
+         valueFrom: 
+            secretKeyRef:
+              name: secret-demo
+              key: password
+       - name: port
+         valueFrom: 
+            configMapKeyRef:
+              name: cm-demo
+              key: port
+       - name: DB-URL
+         valueFrom: 
+            configMapKeyRef:
+              name: cm-demo
+              key: db_url
+       - name: DB-name
+         valueFrom: 
+            configMapKeyRef:
+              name: cm-demo
+              key: db_name   
